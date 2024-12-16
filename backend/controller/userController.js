@@ -24,13 +24,14 @@ exports.signUp = async (req, res) => {
     const newUser = new User({
       email,
       password,
+      role: "User",
     });
 
     await newUser.save();
 
     // Generate a JWT token
     const token = jwt.sign(
-      { userId: newUser._id }, // payload
+      { userId: newUser._id, role: newUser.role }, // payload
       process.env.JWT_SECRET, // Secret key
       { expiresIn: "1h" } // Expire time
     );
@@ -59,8 +60,6 @@ exports.signIn = async (req, res) => {
     }
 
     // Check if the user exists
-    // console.log("Email------->:", email);
-    // console.log("Password------->:", password);
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "User does not exist" });
@@ -74,9 +73,13 @@ exports.signIn = async (req, res) => {
     }
 
     // If login is successful, generate a JWT token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { userId: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
 
     res.status(200).json({
       message: "Login successful",
@@ -84,6 +87,34 @@ exports.signIn = async (req, res) => {
     });
   } catch (error) {
     console.error("Login failed!", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// Promote a User
+exports.promoteUser = async (req, res) => {
+  try {
+    const { userId, newRole } = req.body;
+
+    // Validate new role
+    if (!["Admin", "User"].includes(newRole)) {
+      return res.status(400).json({ message: "Invalid role provided" });
+    }
+
+    // Find the user to be promoted/demoted
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update the role
+    user.role = newRole;
+    await user.save();
+    res
+      .status(200)
+      .json({ message: `User role updated to ${newRole} successfully`, user });
+  } catch (error) {
+    console.error("Error updating role:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

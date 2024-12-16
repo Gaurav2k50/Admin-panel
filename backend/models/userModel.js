@@ -11,6 +11,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  role: {
+    type: String,
+    enum: ["SuperAdmin", "Admin", "User"],
+    default: "User",
+  },
 });
 
 // Pre-save middleware for hashing the password
