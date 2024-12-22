@@ -2,14 +2,18 @@ require("dotenv").config();
 const express = require("express");
 const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoute");
+const candidateRoutes = require("./routes/candidateRoute");
+const cors = require("cors");
 
 const app = express();
+app.use(cors());
 
 connectDB();
 
 app.use(express.json());
 
 app.use("/api/v1", userRoutes);
+app.use("/api/v1/candidates", candidateRoutes);
 
 app.get("/", (req, res) => {
   return res.send(
