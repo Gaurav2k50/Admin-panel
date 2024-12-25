@@ -1,31 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import MDBox from "components/MDBox";
-import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  CircularProgress,
-  Grid,
-  IconButton,
-  TextField,
-} from "@mui/material";
+import { Box, Button, Card, Grid, IconButton, TextField, Alert } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import MDTypography from "components/MDTypography";
 import PropTypes from "prop-types";
+import MDBox from "components/MDBox";
+import MDTypography from "components/MDTypography";
 import { DatePicker } from "@mui/x-date-pickers";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+
+// Extend dayjs with plugins
 import advancedFormat from "dayjs/plugin/advancedFormat";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import isBetween from "dayjs/plugin/isBetween";
 import weekOfYear from "dayjs/plugin/weekOfYear";
-
-// Extend dayjs with the plugins
 dayjs.extend(advancedFormat);
 dayjs.extend(customParseFormat);
 dayjs.extend(localizedFormat);
@@ -33,17 +24,21 @@ dayjs.extend(isBetween);
 dayjs.extend(weekOfYear);
 
 export default function AddEmployeesFormModal({ closeModal }) {
+  const [imagePreview, setImagePreview] = useState(null);
+  const [status, setStatus] = useState(null); // State for status messages
+
   const formik = useFormik({
     initialValues: {
-      name: "",
+      employeeName: "",
       email: "",
       phone: "",
       department: "",
       position: "",
       date: "",
+      image: null,
     },
     validationSchema: Yup.object({
-      name: Yup.string().required("Full name is required"),
+      employeeName: Yup.string().required("Full name is required"),
       email: Yup.string().email("Invalid email address").required("Email is required"),
       phone: Yup.string()
         .matches(/^\d{10}$/, "Phone number must be 10 digits")
@@ -51,22 +46,29 @@ export default function AddEmployeesFormModal({ closeModal }) {
       department: Yup.string().required("Department is required"),
       position: Yup.string().required("Position is required"),
       date: Yup.date().required("Date is required"),
+      image: Yup.mixed().required("Profile picture is required"),
     }),
-    onSubmit: async (values, { setSubmitting, setStatus }) => {
+    onSubmit: async (values, { setSubmitting }) => {
       const form = new FormData();
       for (const key in values) {
-        form.append(key, values[key]);
+        if (key === "image" && values[key]) {
+          form.append("profilePicture", values[key]);
+        } else {
+          form.append(key, values[key]);
+        }
       }
+
       setSubmitting(true);
 
       try {
-        const response = await fetch("", {
+        const response = await fetch("http://localhost:5001/api/v1/employee", {
           method: "POST",
           body: form,
         });
 
         if (!response.ok) {
-          throw new Error("Failed to submit form");
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to submit form");
         }
 
         setStatus({ success: "Employee added successfully!" });
@@ -74,14 +76,16 @@ export default function AddEmployeesFormModal({ closeModal }) {
           closeModal();
         }, 1000);
       } catch (error) {
-        setStatus({ error: error.message });
+        setStatus({ error: `Error: ${error.message}` });
       } finally {
         setSubmitting(false);
       }
     },
   });
+
   return (
-    <MDBox pt={6} pb={3}>
+    <MDBox pt={6} pb={3} sx={{ overflowY: "auto", maxHeight: "90vh" }}>
+      {/* Close Button */}
       <IconButton
         onClick={closeModal}
         sx={{
@@ -94,7 +98,97 @@ export default function AddEmployeesFormModal({ closeModal }) {
         <CloseIcon />
       </IconButton>
       <Grid container spacing={6}>
-        <Grid item xs={12}>
+        <Grid item xs={12} md={4}>
+          <Card sx={{ boxShadow: 3, borderRadius: 2 }}>
+            <MDBox p={3}>
+              <MDTypography variant="h6" mb={3} fontWeight="400" color="text.primary">
+                Choose Profile
+              </MDTypography>
+
+              {imagePreview ? (
+                <Box
+                  mt={0}
+                  textAlign="center"
+                  sx={{
+                    position: "relative",
+                    borderRadius: "8px",
+                    overflow: "hidden",
+                    display: "inline-block",
+                  }}
+                >
+                  <img
+                    src={imagePreview}
+                    alt="Uploaded Preview"
+                    style={{
+                      width: "165px",
+                      height: "150px",
+                      objectFit: "cover",
+                      borderRadius: "8px",
+                      border: "2px solid #ddd",
+                    }}
+                  />
+                </Box>
+              ) : (
+                <Box mt={-2} textAlign="center">
+                  <MDTypography variant="body2" color="text.secondary">
+                    No Image Selected
+                  </MDTypography>
+                </Box>
+              )}
+
+              {!imagePreview ? (
+                <Button
+                  variant="contained"
+                  component="label"
+                  fullWidth
+                  sx={{
+                    mt: 1,
+                    backgroundColor: "#1976d2",
+                    color: "#FFFFFF",
+                    "&:hover": {
+                      backgroundColor: "#1565c0",
+                    },
+                  }}
+                >
+                  Choose Image
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setImagePreview(reader.result);
+                        };
+                        reader.readAsDataURL(file);
+                        formik.setFieldValue("image", file);
+                      }
+                    }}
+                  />
+                </Button>
+              ) : (
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  sx={{
+                    mt: 0,
+                    backgroundColor: "#d32f2f",
+                    "&:hover": {
+                      backgroundColor: "#c2185b",
+                    },
+                  }}
+                  onClick={() => setImagePreview(null)}
+                >
+                  Delete Image
+                </Button>
+              )}
+            </MDBox>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={8}>
           <Card>
             <MDBox
               mx={2}
@@ -116,15 +210,15 @@ export default function AddEmployeesFormModal({ closeModal }) {
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
                       <TextField
-                        label="Full Name"
-                        name="name"
-                        value={formik.values.name}
+                        label="Employee Name"
+                        name="employeeName"
+                        value={formik.values.employeeName}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                         variant="outlined"
                         fullWidth
-                        error={formik.touched.name && Boolean(formik.errors.name)}
-                        helperText={formik.touched.name && formik.errors.name}
+                        error={formik.touched.employeeName && Boolean(formik.errors.employeeName)}
+                        helperText={formik.touched.employeeName && formik.errors.employeeName}
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -170,7 +264,6 @@ export default function AddEmployeesFormModal({ closeModal }) {
                     </Grid>
                   </Grid>
 
-                  {/* Single input field */}
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
                       <TextField
@@ -191,10 +284,7 @@ export default function AddEmployeesFormModal({ closeModal }) {
                           label="Date of Joining"
                           value={formik.values.date ? dayjs(formik.values.date) : null}
                           onChange={(newValue) => {
-                            formik.setFieldValue(
-                              "date",
-                              newValue ? dayjs(newValue).format("YYYY-MM-DD") : ""
-                            );
+                            formik.setFieldValue("date", newValue?.toISOString());
                           }}
                           renderInput={(params) => (
                             <TextField
@@ -208,30 +298,39 @@ export default function AddEmployeesFormModal({ closeModal }) {
                       </LocalizationProvider>
                     </Grid>
                   </Grid>
-
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    disabled={formik.isSubmitting}
-                    sx={{
-                      color: "#FFFFFF",
-                    }}
-                  >
-                    {formik.isSubmitting ? (
-                      <CircularProgress size={24} color="inherit" />
-                    ) : (
-                      "Submit"
-                    )}
-                  </Button>
-
-                  {formik.status?.error && <Alert severity="error">{formik.status.error}</Alert>}
-                  {formik.status?.success && (
-                    <Alert severity="success">{formik.status.success}</Alert>
-                  )}
+                  <Box>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      type="submit"
+                      fullWidth
+                      disabled={formik.isSubmitting}
+                      sx={{
+                        mt: 2,
+                        backgroundColor: "#1976d2",
+                        color: "#FFFFFF",
+                      }}
+                    >
+                      {formik.isSubmitting ? "Adding..." : "Add Employee"}
+                    </Button>
+                  </Box>
                 </Box>
               </form>
+
+              {status && (
+                <Box mt={3}>
+                  {status.success && (
+                    <Alert severity="success" onClose={() => setStatus(null)}>
+                      {status.success}
+                    </Alert>
+                  )}
+                  {status.error && (
+                    <Alert severity="error" onClose={() => setStatus(null)}>
+                      {status.error}
+                    </Alert>
+                  )}
+                </Box>
+              )}
             </MDBox>
           </Card>
         </Grid>

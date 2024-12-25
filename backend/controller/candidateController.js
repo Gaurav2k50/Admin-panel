@@ -3,7 +3,7 @@ const Candidate = require("../models/candidateModel");
 const addCandidate = async (req, res) => {
   const { name, email, phone, department, experience } = req.body;
 
-  const resume = req.file ? req.file.path : null; // Get file path if file exists
+  const resume = req.file ? req.file.path : null;
 
   if (!name || !email || !phone || !department || !experience || !resume) {
     return res.status(400).json({ message: "All fields are required " });
