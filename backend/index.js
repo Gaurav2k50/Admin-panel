@@ -4,6 +4,7 @@ const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoute");
 const candidateRoutes = require("./routes/candidateRoute");
 const employeeRoute = require("./routes/employeeRoute");
+const path = require("path");
 const cors = require("cors");
 
 const app = express();
@@ -13,6 +14,7 @@ connectDB();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/v1", userRoutes);
 app.use("/api/v1/candidates", candidateRoutes);

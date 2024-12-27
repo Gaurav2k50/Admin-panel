@@ -46,7 +46,9 @@ export default function AddEmployeesFormModal({ closeModal }) {
       department: Yup.string().required("Department is required"),
       position: Yup.string().required("Position is required"),
       date: Yup.date().required("Date is required"),
-      image: Yup.mixed().required("Profile picture is required"),
+      image: Yup.mixed()
+        .nullable()
+        .test("fileRequired", "Profile picture is required", (value) => value !== null),
     }),
     onSubmit: async (values, { setSubmitting }) => {
       const form = new FormData();
@@ -164,6 +166,8 @@ export default function AddEmployeesFormModal({ closeModal }) {
                         };
                         reader.readAsDataURL(file);
                         formik.setFieldValue("image", file);
+                      } else {
+                        alert("Please select a valid image file.");
                       }
                     }}
                   />
