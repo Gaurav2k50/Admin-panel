@@ -12,7 +12,7 @@ const seedSuperAdmin = async () => {
     await superAdmin.save();
     console.log("SuperAdmin created successfully");
   } else {
-    console.log("SuperAdmin already exists");
+    // console.log("SuperAdmin already exists");
   }
 };
 
