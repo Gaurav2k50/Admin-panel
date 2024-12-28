@@ -6,6 +6,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
+import { toast } from "react-toastify";
 
 export default function DataTable() {
   const [candidates, setCandidates] = useState([]);
@@ -27,8 +28,10 @@ export default function DataTable() {
       if (!response.ok) throw new Error("Failed to delete candidate");
 
       setCandidates(candidates.filter((candidate) => candidate._id !== id));
+      toast.success("Candidate deleted successfully");
     } catch (error) {
       console.error("Error deleting candidate:", error);
+      toast.error("Failed to delete candidate");
     }
   };
 

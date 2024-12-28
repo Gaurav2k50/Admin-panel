@@ -1,9 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const connectDB = require("./config/db");
-const userRoutes = require("./routes/userRoute");
-const candidateRoutes = require("./routes/candidateRoute");
-const employeeRoute = require("./routes/employeeRoute");
+const apiRoutes = require("./routes/routes");
 const path = require("path");
 const cors = require("cors");
 
@@ -16,9 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.use("/api/v1", userRoutes);
-app.use("/api/v1/candidates", candidateRoutes);
-app.use("/api/v1/employee", employeeRoute);
+app.use("/api/v1", apiRoutes);
 
 app.get("/", (req, res) => {
   return res.send(

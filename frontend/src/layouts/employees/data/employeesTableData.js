@@ -7,11 +7,12 @@ import MDBadge from "components/MDBadge";
 import team2 from "assets/images/team-2.jpg";
 import team3 from "assets/images/team-3.jpg";
 import moment from "moment";
+import { toast } from "react-toastify";
 import { IconButton } from "@mui/material";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import { useEffect, useState } from "react";
-import { position } from "stylis";
+import { confirmAlert } from "react-confirm-alert";
 
 export default function EmployeesTableData() {
   const [employees, setEmployees] = useState([]);
@@ -19,7 +20,7 @@ export default function EmployeesTableData() {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await fetch("http://localhost:5001/api/v1/employee/allEmployee");
+        const response = await fetch("http://localhost:5001/api/v1/employees/list");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -86,8 +87,41 @@ export default function EmployeesTableData() {
     // });
   };
 
-  const handleDelete = (id) => {
-    console.log("Delete employee with ID:", id);
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:5001/api/v1/employees/delete/${id}`, {
+        method: "Delete",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete the employee");
+      }
+
+      // If the delete is successful, remove the employee from the state
+      setEmployees((prevEmployees) => prevEmployees.filter((employee) => employee._id !== id));
+
+      toast.success("Employee deleted successfully");
+    } catch (error) {
+      console.error("Error deleting employee:", error);
+      toast.error("Failed to delete employee");
+    }
+  };
+
+  const confirmDelete = (employee) => {
+    confirmAlert({
+      title: "Confirm Delete",
+      message: `Are you sure you want to delete ${employee.employeeName}?`,
+      buttons: [
+        {
+          label: "Yes",
+          onClick: () => handleDelete(employee._id),
+        },
+        {
+          label: "No",
+        },
+      ],
+      overlayClassName: "custom-overlay-class",
+    });
   };
 
   const rows = employees.map((employee) => ({
@@ -111,7 +145,7 @@ export default function EmployeesTableData() {
         <IconButton color="primary" onClick={() => handleEdit()}>
           <DriveFileRenameOutlineIcon fontSize="small" />
         </IconButton>
-        <IconButton color="secondary" onClick={() => handleDelete(employee.id)}>
+        <IconButton color="secondary" onClick={() => confirmDelete(employee)}>
           <DeleteForeverIcon fontSize="small" />
         </IconButton>
       </MDBox>

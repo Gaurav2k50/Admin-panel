@@ -7,6 +7,7 @@ import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Icon from "@mui/material/Icon";
+import { ToastContainer } from "react-toastify";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -135,6 +136,8 @@ export default function App() {
     <CacheProvider value={rtlCache}>
       <ThemeProvider theme={darkMode ? themeDarkRTL : themeRTL}>
         <CssBaseline />
+        {/* Add the ToastContainer here */}
+        <ToastContainer />
         {layout === "dashboard" && (
           <>
             <Sidenav
@@ -159,6 +162,8 @@ export default function App() {
   ) : (
     <ThemeProvider theme={darkMode ? themeDark : theme}>
       <CssBaseline />
+      {/* Add the ToastContainer here */}
+      <ToastContainer />
       {layout === "dashboard" && (
         <>
           <Sidenav

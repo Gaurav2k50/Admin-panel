@@ -8,7 +8,6 @@ const router = express.Router();
 // Public Route: Signup
 router.post("/signup", signUp);
 router.post("/signin", signIn);
-
 router.put("/promote", protectRoute, authorization("SuperAdmin"), promoteUser);
 
 module.exports = router;

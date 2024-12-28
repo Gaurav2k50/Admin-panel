@@ -63,7 +63,7 @@ export default function AddEmployeesFormModal({ closeModal }) {
       setSubmitting(true);
 
       try {
-        const response = await fetch("http://localhost:5001/api/v1/employee", {
+        const response = await fetch("http://localhost:5001/api/v1/employees/add", {
           method: "POST",
           body: form,
         });
