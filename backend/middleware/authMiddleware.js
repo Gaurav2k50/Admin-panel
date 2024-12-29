@@ -1,4 +1,6 @@
 const jwt = require("jsonwebtoken");
+// Token blacklist
+const tokenBlacklist = new Set();
 
 exports.protectRoute = (req, res, next) => {
   try {
@@ -12,6 +14,11 @@ exports.protectRoute = (req, res, next) => {
     }
 
     const token = authHeader.split(" ")[1];
+
+    // Check if token is blacklisted
+    if (tokenBlacklist.has(token)) {
+      return res.status(403).json({ message: "Token has been logged out" });
+    }
 
     // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -49,3 +56,5 @@ exports.authorization = (...roles) => {
     }
   };
 };
+
+exports.tokenBlacklist = tokenBlacklist;

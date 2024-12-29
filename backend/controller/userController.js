@@ -1,17 +1,18 @@
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { tokenBlacklist } = require("../middleware/authMiddleware");
 
 // SignUp
 exports.signUp = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { name, email, password } = req.body;
 
     // Check if email is provided
-    if (!email || !password) {
+    if (!name || !email || !password) {
       return res
         .status(400)
-        .json({ message: "email and password is required" });
+        .json({ message: "name email and password is required" });
     }
 
     // Check if email already exists in the database
@@ -22,6 +23,7 @@ exports.signUp = async (req, res) => {
 
     // Create a new user
     const newUser = new User({
+      name,
       email,
       password,
       role: "User",
@@ -88,6 +90,38 @@ exports.signIn = async (req, res) => {
   } catch (error) {
     console.error("Login failed!", error.message);
     res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// Logout
+exports.logout = (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    // Validate the presence of the authorization header
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res
+        .status(400)
+        .json({ message: "No token provided in authorization header" });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    // Check if the token is already blacklisted
+    if (tokenBlacklist.has(token)) {
+      return res.status(400).json({ message: "Token already blacklisted" });
+    }
+
+    // Add token to blacklist
+    tokenBlacklist.add(token);
+
+    res.status(200).json({ message: "Logout Successful" });
+  } catch (error) {
+    console.error("Logout failed!", error.message);
+    res.status(500).json({
+      message: "An error occurred during logout",
+      error: error.message,
+    });
   }
 };
 
