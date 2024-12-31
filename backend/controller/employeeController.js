@@ -70,6 +70,65 @@ const getAllEmployee = async (req, res) => {
   }
 };
 
+const updateEmployee = async (req, res) => {
+  const { id } = req.params;
+  const { employeeName, email, phone, position, department, date } = req.body;
+
+  try {
+    if (!id) {
+      return res.status(400).json({ message: "Employee ID is required" });
+    }
+
+    // Check if the date is valid if provided
+    let formattedDate;
+    if (date) {
+      formattedDate = new Date(date);
+      if (isNaN(formattedDate)) {
+        return res
+          .status(400)
+          .json({ message: "Invalid date format. Please use yyyy-mm-dd." });
+      }
+    }
+
+    // Handle profile image if uploaded
+    const profilePath = req.file
+      ? `/uploads/profile/${req.file.filename}`
+      : undefined;
+
+    // Build update object
+    const updateData = {
+      ...(employeeName && { employeeName }),
+      ...(email && { email }),
+      ...(phone && { phone }),
+      ...(position && { position }),
+      ...(department && { department }),
+      ...(formattedDate && { date: formattedDate }),
+      ...(profilePath && { profile: profilePath }),
+    };
+
+    // Find and update employee
+    const updatedEmployee = await Employee.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedEmployee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    res.status(200).json({
+      message: "Employee updated successfully",
+      employee: updatedEmployee,
+    });
+  } catch (error) {
+    console.error("Error updating employee:", error);
+    res.status(500).json({
+      message: "An error occurred while updating the employee",
+      error: error.message,
+    });
+  }
+};
+
 const deleteEmployee = async (req, res) => {
   const { id } = req.params;
 
@@ -99,5 +158,6 @@ const deleteEmployee = async (req, res) => {
 module.exports = {
   addEmployee,
   getAllEmployee,
+  updateEmployee,
   deleteEmployee,
 };
