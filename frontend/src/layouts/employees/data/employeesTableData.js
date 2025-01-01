@@ -4,8 +4,6 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDAvatar from "components/MDAvatar";
 import MDBadge from "components/MDBadge";
-import team2 from "assets/images/team-2.jpg";
-import team3 from "assets/images/team-3.jpg";
 import moment from "moment";
 import { toast } from "react-toastify";
 import { IconButton } from "@mui/material";
@@ -62,7 +60,7 @@ export default function EmployeesTableData() {
     </MDBox>
   );
 
-  const Job = ({ title, description }) => (
+  const Position = ({ title, description }) => (
     <MDBox lineHeight={1} textAlign="left">
       <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
         {title}
@@ -129,7 +127,7 @@ export default function EmployeesTableData() {
     author: <Employee name={employee.employeeName} />,
     email: <Email email={employee.email} />,
     phone: <Phone phone={employee.phone} />,
-    position: <Job title={employee.position} />,
+    position: <Position title={employee.position} />,
     department: (
       <MDBox ml={-1}>
         <MDBadge badgeContent={employee.department} color="success" variant="gradient" size="sm" />
@@ -142,10 +140,10 @@ export default function EmployeesTableData() {
     ),
     action: (
       <MDBox display="flex" justifyContent="center" gap={0}>
-        <IconButton color="primary" onClick={() => handleEdit()}>
+        <IconButton onClick={() => handleEdit()}>
           <DriveFileRenameOutlineIcon fontSize="small" />
         </IconButton>
-        <IconButton color="secondary" onClick={() => confirmDelete(employee)}>
+        <IconButton onClick={() => confirmDelete(employee)}>
           <DeleteForeverIcon fontSize="small" />
         </IconButton>
       </MDBox>

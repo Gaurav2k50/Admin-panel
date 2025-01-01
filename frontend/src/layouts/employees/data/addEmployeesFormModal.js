@@ -35,6 +35,7 @@ export default function AddEmployeesFormModal({ closeModal }) {
       department: "",
       position: "",
       date: "",
+      task: "",
       image: null,
     },
     validationSchema: Yup.object({
@@ -46,6 +47,7 @@ export default function AddEmployeesFormModal({ closeModal }) {
       department: Yup.string().required("Department is required"),
       position: Yup.string().required("Position is required"),
       date: Yup.date().required("Date is required"),
+      task: Yup.string().required("Task is required"),
       image: Yup.mixed()
         .nullable()
         .test("fileRequired", "Profile picture is required", (value) => value !== null),
@@ -302,6 +304,22 @@ export default function AddEmployeesFormModal({ closeModal }) {
                       </LocalizationProvider>
                     </Grid>
                   </Grid>
+
+                  <Grid container spacing={1}>
+                    <Grid item xs={12} sm={12}>
+                      <TextField
+                        label="Task"
+                        name="task"
+                        value={formik.values.task}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        fullWidth
+                        error={formik.touched.task && Boolean(formik.errors.task)}
+                        helperText={formik.touched.task && formik.errors.task}
+                      />
+                    </Grid>
+                  </Grid>
+
                   <Box>
                     <Button
                       variant="contained"

@@ -2,7 +2,8 @@ const express = require("express");
 const Employee = require("../models/employeeModel");
 
 const addEmployee = async (req, res) => {
-  const { employeeName, email, phone, position, department, date } = req.body;
+  const { employeeName, email, phone, position, department, date, task } =
+    req.body;
 
   try {
     if (
@@ -11,7 +12,8 @@ const addEmployee = async (req, res) => {
       !phone ||
       !position ||
       !department ||
-      !date
+      !date ||
+      !task
     ) {
       return res.status(400).json({ message: "All fields are required " });
     }
@@ -37,6 +39,7 @@ const addEmployee = async (req, res) => {
       position,
       department,
       date: formattedDate,
+      task,
       profile: profilePath,
     });
 

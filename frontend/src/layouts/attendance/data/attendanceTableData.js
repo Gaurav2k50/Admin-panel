@@ -4,163 +4,108 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDAvatar from "components/MDAvatar";
 import MDBadge from "components/MDBadge";
-
-import team2 from "assets/images/team-2.jpg";
-import team3 from "assets/images/team-3.jpg";
-import team4 from "assets/images/team-4.jpg";
+import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import { IconButton } from "@mui/material";
+import { useEffect, useState } from "react";
+import Employees from "layouts/employees";
 
 export default function attendanceTableData() {
-  const Attendance = ({ image, name, email }) => (
-    <MDBox display="flex" alignItems="center" lineHeight={1}>
-      <MDAvatar src={image} name={name} size="sm" />
-      <MDBox ml={2} lineHeight={1}>
+  const [employees, setEmployees] = useState([]);
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const response = await fetch("http://localhost:5001/api/v1/employees/list");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setEmployees(data);
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+      }
+    };
+    fetchEmployees();
+  }, []);
+
+  const Profile = ({ image }) => {
+    const baseURL = "http://localhost:5001";
+    return (
+      <MDBox display="flex" flexDirection="column" alignItems="center" lineHeight={1}>
+        <MDAvatar src={`${baseURL}${image}`} size="md" />
+      </MDBox>
+    );
+  };
+
+  const Employee = ({ name }) => {
+    return (
+      <MDBox display="flex" alignItems="center" lineHeight={1}>
         <MDTypography display="block" variant="button" fontWeight="medium">
           {name}
         </MDTypography>
-        <MDTypography variant="caption">{email}</MDTypography>
       </MDBox>
-    </MDBox>
-  );
+    );
+  };
 
-  const Job = ({ title, description }) => (
-    <MDBox lineHeight={1} textAlign="left">
-      <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
-        {title}
-      </MDTypography>
-      <MDTypography variant="caption">{description}</MDTypography>
-    </MDBox>
-  );
+  const Designation = ({ designation }) => {
+    return (
+      <MDBox lineHeight={1}>
+        <MDTypography display="block" variant="button" fontWeight="medium">
+          {designation}
+        </MDTypography>
+      </MDBox>
+    );
+  };
+
+  const Task = ({ task }) => {
+    return (
+      <MDBox lineHeight={1}>
+        <MDTypography display="block" variant="button" fontWeight="medium">
+          {task}
+        </MDTypography>
+      </MDBox>
+    );
+  };
+
+  const rows = employees.map((employee) => ({
+    profile: <Profile image={employee.profile} />,
+    employeeName: <Employee name={employee.employeeName} />,
+    designation: <Designation designation={employee.position} />,
+    department: (
+      <MDBox ml={-1}>
+        <MDBadge badgeContent={employee.department} color="success" variant="gradient" size="sm" />
+      </MDBox>
+    ),
+    task: <Task task={employee.task} />,
+    status: (
+      <MDBox ml={-1}>
+        <MDBadge badgeContent="online" color="success" variant="gradient" size="sm" />
+      </MDBox>
+    ),
+
+    action: (
+      <MDBox display="flex" justifyContent="center" gap={0}>
+        <IconButton>
+          <DriveFileRenameOutlineIcon fontSize="small" />
+        </IconButton>
+        <IconButton>
+          <DeleteForeverIcon fontSize="small" />
+        </IconButton>
+      </MDBox>
+    ),
+  }));
 
   return {
     columns: [
-      { Header: "Profile", accessor: "srNo", width: "45%", align: "left" },
-      { Header: "Employee Name", accessor: "author", width: "45%", align: "left" },
-      { Header: "Designation", accessor: "function", align: "left" },
+      { Header: "Profile", accessor: "profile", width: "45%", align: "left" },
+      { Header: "Employee", accessor: "employeeName", width: "45%", align: "left" },
+      { Header: "Designation", accessor: "designation", align: "left" },
       { Header: "Department", accessor: "department", width: "45%", align: "center" },
       { Header: "Task", accessor: "task", width: "45%", align: "center" },
       { Header: "Status", accessor: "status", align: "center" },
-      //   { Header: "Date of Joining", accessor: "employed", align: "center" },
-      // { Header: "Resume", accessor: "resume", align: "center" },
       { Header: "action", accessor: "action", align: "center" },
     ],
-
-    rows: [
-      {
-        author: <Attendance image={team2} name="John Michael" email="john@creative-tim.com" />,
-        function: <Job title="Manager" description="Organization" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="online" color="success" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            23/04/18
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
-        ),
-      },
-      {
-        author: <Attendance image={team3} name="Alexa Liras" email="alexa@creative-tim.com" />,
-        function: <Job title="Programator" description="Developer" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="offline" color="dark" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            11/01/19
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
-        ),
-      },
-      {
-        author: (
-          <Attendance image={team4} name="Laurent Perrier" email="laurent@creative-tim.com" />
-        ),
-        function: <Job title="Executive" description="Projects" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="online" color="success" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            19/09/17
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
-        ),
-      },
-      {
-        author: <Attendance image={team3} name="Michael Levi" email="michael@creative-tim.com" />,
-        function: <Job title="Programator" description="Developer" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="online" color="success" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            24/12/08
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
-        ),
-      },
-      {
-        author: <Attendance image={team3} name="Richard Gran" email="richard@creative-tim.com" />,
-        function: <Job title="Manager" description="Executive" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="offline" color="dark" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            04/10/21
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
-        ),
-      },
-      {
-        author: <Attendance image={team4} name="Miriam Eric" email="miriam@creative-tim.com" />,
-        function: <Job title="Programator" description="Developer" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="offline" color="dark" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            14/09/20
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
-        ),
-      },
-    ],
+    rows,
   };
 }

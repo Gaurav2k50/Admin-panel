@@ -27,6 +27,10 @@ const employeeSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    task: {
+      type: String,
+      required: true,
+    },
     profile: {
       type: String,
       required: false,
