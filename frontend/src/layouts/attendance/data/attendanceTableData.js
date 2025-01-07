@@ -8,7 +8,7 @@ import MDTypography from "components/MDTypography";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { IconButton, Select, MenuItem } from "@mui/material";
 
-export default function attendanceTableData() {
+export default function AttendanceTableData() {
   const [employees, setEmployees] = useState([]);
 
   useEffect(() => {

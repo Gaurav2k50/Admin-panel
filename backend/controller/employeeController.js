@@ -15,7 +15,7 @@ const addEmployee = async (req, res) => {
       !date ||
       !task
     ) {
-      return res.status(400).json({ message: "All fields are required " });
+      return res.status(400).json({ message: "All fields are required" });
     }
 
     // Ensure the date is in yyyy-mm-dd format

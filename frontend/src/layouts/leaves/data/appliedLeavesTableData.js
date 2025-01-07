@@ -9,7 +9,7 @@ import team2 from "assets/images/team-2.jpg";
 import team3 from "assets/images/team-3.jpg";
 import team4 from "assets/images/team-4.jpg";
 
-export default function appliedLeavesTableData() {
+export default function AppliedLeavesTableData() {
   const Applied = ({ image, name, email }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
       <MDAvatar src={image} name={name} size="sm" />
@@ -35,16 +35,11 @@ export default function appliedLeavesTableData() {
 
   return {
     columns: [
-      //   { Header: "Profile", accessor: "srNo", width: "45%", align: "left" },
       { Header: "Name", accessor: "author", width: "45%", align: "left" },
       { Header: "Date", accessor: "employed", align: "center" },
-      //   { Header: "Email Address", accessor: "email", width: "45%", align: "center" },
-      //   { Header: "Phone Number", accessor: "phone", width: "45%", align: "center" },
       { Header: "Reason", accessor: "function", align: "left" },
       { Header: "Status", accessor: "status", align: "center" },
       { Header: "Docs", accessor: "docs", align: "center" },
-      // { Header: "Resume", accessor: "resume", align: "center" },
-      //   { Header: "action", accessor: "action", align: "center" },
     ],
 
     rows: [
